@@ -1,0 +1,160 @@
+:root {
+    --gold: #ffd700;
+    --door-blue: #1a2a6c;
+    --bg-dark: #050509;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg-dark);
+    color: white;
+    overflow: hidden;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* UI Elements */
+.meter-bar {
+    width: 80%;
+    height: 20px;
+    background: #333;
+    border: 2px solid white;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px;
+}
+
+.progress {
+    height: 100%;
+    background: var(--gold);
+    width: 0%;
+    transition: width 0.1s;
+}
+
+#timer {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff4d4d;
+}
+
+/* Phase Management */
+.phase {
+    display: none;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+}
+
+.active { display: flex; }
+
+/* Memory Circles */
+.memory-circle {
+    position: absolute;
+    width: 65px;
+    height: 65px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 20px white;
+    animation: fadeOut 5s forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.5); }
+}
+
+/* Puzzle Grid */
+.target-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 90px);
+    grid-template-rows: repeat(3, 90px);
+    gap: 10px;
+}
+
+.target-slot {
+    width: 90px;
+    height: 90px;
+    border: 2px dashed #444;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+}
+
+.puzzle-piece {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    background: var(--door-blue);
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: bold;
+    z-index: 10;
+}
+
+.puzzle-piece.placed {
+    background: var(--gold);
+    color: black;
+    box-shadow: 0 0 20px var(--gold);
+}
+
+/* Effects */
+.glow-text { color: var(--gold); text-shadow: 0 0 15px var(--gold); }
+#final-lock-btn {
+    width: 120px;
+    height: 120px;
+    border: 8px solid gold;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff, #ffd700, #000);
+    box-shadow: 0 0 30px gold;
+}
+
+/* DEBUG */
+#debug-panel {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    display: flex;
+    gap: 5px;
+    z-index: 1000; /* Ensure it stays above everything */
+    opacity: 0.5;   /* Semi-transparent so it's not distracting */
+}
+
+#debug-panel:hover {
+    opacity: 1;
+}
+
+#debug-panel button {
+    background: rgba(0, 0, 0, 0.7);
+    color: #00ff00; /* "Hacker" green for debug vibes */
+    border: 1px solid #00ff00;
+    padding: 5px 10px;
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#debug-panel button:active {
+    background: #00ff00;
+    color: black;
+}
