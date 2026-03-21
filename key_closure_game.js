@@ -1,9 +1,14 @@
 let state = 'MENU';
-let timeLeft = 9999999999999;
+let timeLeft = 25;
 let pushValue = 0;
 let memoryValue = 0;
 let piecesPlacedCount = 0;
 let timerInterval;
+
+//scores
+let totalScore = 0;
+let phaseStartTime = 0;
+let phaseCompletions = []; // To store [Phase Name, Time Taken, Points]
 
 // Background vid
 const videoSources = {
@@ -31,44 +36,55 @@ let dragOffsetX = 0;
 let dragOffsetY = 0;
 
 function changePhase(newPhase) {
-    Object.values(screens).forEach(s => s.classList.remove('active'));
-    screens[newPhase].classList.add('active');
-    state = newPhase.toUpperCase();
-
-    // Background
-    // --- New Smooth Video Swapping Logic ---
-    const allVideos = document.querySelectorAll('.bg-video');
-    const targetVid = document.getElementById(`vid-${newPhase}`);
-
-    if (targetVid) {
-        // Remove active class from all
-        allVideos.forEach(v => {
-            v.classList.remove('active-vid');
-        });
-
-        // Set the new one to active
-        targetVid.classList.add('active-vid');
-        
-        // Force the video to start from the beginning and PLAY
-        targetVid.currentTime = 0; 
-        const playPromise = targetVid.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.catch(error => {
-                // If it fails, we try again on the next tap
-                console.log("Video play failed, waiting for interaction.");
-            });
-        }
+    // 1. Calculate score for the phase we are LEAVING
+    const gameplayPhases = ['PUSH', 'MEMORY', 'PUZZLE', 'LOCK'];
+    if (gameplayPhases.includes(state)) {
+        calculatePhaseScore(state);
     }
 
-    if(state === 'MEMORY') startMemorySpawner();
-    if(state === 'PUZZLE') initPuzzle();
+    // 2. Switch the active screen
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[newPhase].classList.add('active');
+    
+    // 3. Update the state to the NEW phase
+    state = newPhase.toUpperCase();
+
+    // 4. Reset the "Lap Timer" for scoring the new phase
+    phaseStartTime = Date.now();
+
+    // 5. Handle Video Swapping
+    const allVideos = document.querySelectorAll('.bg-video');
+    const targetVid = document.getElementById(`vid-${newPhase}`);
+    if (targetVid) {
+        allVideos.forEach(v => v.classList.remove('active-vid'));
+        targetVid.classList.add('active-vid');
+        targetVid.currentTime = 0;
+        targetVid.play().catch(() => {});
+    }
+
+    // 6. UI/Logic Toggles
+    const timerElement = document.getElementById('timer');
+    timerElement.style.display = (state === 'MENU' || state === 'SUCCESS') ? 'none' : 'block';
+
+    if (state === 'SUCCESS') updateVictoryScreen();
+    if (state === 'MEMORY') startMemorySpawner();
+    if (state === 'PUZZLE') initPuzzle();
 }
 
+
+
 function startTimer() {
+    // Clear any existing timer first to prevent "Double Speed" timers
+    if (timerInterval) clearInterval(timerInterval);
+    
+    const timeLabel = translations[currentLang].time_label;
+
+    timeLeft = 25; // Reset to 25 every time the ritual starts
+    document.getElementById('timer').innerText = `${timeLabel}: ${timeLeft}`;
+
     timerInterval = setInterval(() => {
         timeLeft--;
-        document.getElementById('timer').innerText = `Time: ${timeLeft}`;
+        document.getElementById('timer').innerText = `${timeLabel}: ${timeLeft}`;
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
             alert("The Worm escaped!");
@@ -208,7 +224,11 @@ function initPuzzle() {
 }
 
 // Events
-window.addEventListener('pointerdown', () => {
+window.addEventListener('pointerdown', (e) => {
+    if (e.target.tagName === 'BUTTON' || e.target.id === 'lang-switcher') {
+        return; 
+    }
+    
     if (state === 'MENU') {
         // --- ADD THIS "WARM-UP" LOOP ---
         const allVids = document.querySelectorAll('.bg-video');
@@ -232,14 +252,138 @@ window.addEventListener('pointerdown', () => {
     }
 });
 
-document.getElementById('final-lock-btn').onclick = () => {
-    clearInterval(timerInterval);
-    document.getElementById('final-lock-btn').onclick = () => {
+document.getElementById('final-lock-btn').onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // Stops the background "window" click from firing
+    
+    if (state === 'LOCK') {
         clearInterval(timerInterval);
-        // Instead of an alert, we just change the phase
         changePhase('success');
-    };
+    }
 };
+
+
+// Scores:
+function calculatePhaseScore(phaseName) {
+    const timeTakenMs = Date.now() - phaseStartTime;
+    const seconds = timeTakenMs / 1000;
+    
+    let phasePoints = 0;
+    
+    if (seconds <= 3) {
+        phasePoints = 400;
+    } else {
+        // Drop 30 points for every second after 3 seconds
+        const extraTime = seconds - 3;
+        phasePoints = Math.max(0, 400 - Math.floor(extraTime * 30));
+    }
+
+    totalScore += phasePoints;
+    
+    // Store data for the final summary
+    phaseCompletions.push({
+        name: phaseName,
+        time: seconds.toFixed(2),
+        points: phasePoints
+    });
+
+    console.log(`Finished ${phaseName} in ${seconds}s. Earned: ${phasePoints}`);
+}
+
+// Update the Victory Screen with the final data
+function updateVictoryScreen() {
+    const summaryDiv = document.getElementById('score-summary');
+    const finalScoreText = translations[currentLang].final_score;
+    // Create the list of phase results
+    const phaseList = phaseCompletions.map(p => `
+        <p>
+            <span>${p.name}: ${p.time}s</span>
+            <span style="color: var(--gold); margin-left: 20px;">+${p.points}</span>
+        </p>
+    `).join('');
+    
+
+    summaryDiv.innerHTML = `
+        <h2 style="color: var(--gold)">${finalScoreText}: ${totalScore}</h2>
+        <div class="score-list">
+            ${phaseList}
+        </div>
+    `;
+}
+
+// Language
+let currentLang = 'JP'; // Default
+const languages = ['JP', 'EN', 'ZH'];
+
+const translations = {
+    EN: {
+        menu_tap: "Tap anywhere to begin the ritual",
+        push_title: "CLOSE THE DOOR!",
+        push_mash: "MASH THE SCREEN",
+        mem_title: "RECALL MEMORIES",
+        mem_desc: "CLICK ON THE WHITE SPOTS",
+        puz_title: "RESTORE THE KEYHOLE",
+        lock_title: "TAP THE LOCK",
+        success_title: "THE DOOR IS SEALED",
+        success_quote: '"I call upon you..."',
+        retry_btn: "RETURN TO MENU",
+        final_score: "FINAL SCORE",
+        time_label: "Time"
+    },
+    JP: {
+        menu_tap: "画面をタップして儀式を開始",
+        push_title: "後ろ戸を閉めろ！",
+        push_mash: "画面を連打してください",
+        mem_title: "記憶を呼び起こす！",
+        mem_desc: "白い光をタップしてください",
+        puz_title: "鍵穴を修復せよ！",
+        lock_title: "鍵を閉めろ！",
+        success_title: "かしこみかしこみ謹んで...",
+        success_quote: "「お返し申す！」",
+        retry_btn: "メニューに戻る",
+        final_score: "最終スコア",
+        time_label: "時間"
+    },
+    ZH: {
+        menu_tap: "點擊屏幕開始儀式",
+        push_title: "關閉後門！",
+        push_mash: "快速點擊屏幕！",
+        mem_title: "喚醒記憶...",
+        mem_desc: "點擊白色光點",
+        puz_title: "修復鎖孔！",
+        lock_title: "鎖上大門",
+        success_title: "門扉已封印...",
+        success_quote: "「奉還於爾！」",
+        retry_btn: "返回主菜單",
+        final_score: "最終得分",
+        time_label: "時間"
+    }
+};
+
+function toggleLanguage() {
+    // Cycle through languages
+    let currentIndex = languages.indexOf(currentLang);
+    currentLang = languages[(currentIndex + 1) % languages.length];
+    
+    // Update button text
+    document.getElementById('lang-switcher').innerText = currentLang;
+    
+    // Update all elements with data-i18n attribute
+    updatePageLanguage();
+}
+
+function updatePageLanguage() {
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[currentLang][key]) {
+            el.innerText = translations[currentLang][key];
+        }
+    });
+}
+
+
+
 
 // DEBUG
 function skipTo(phaseName) {
@@ -262,7 +406,11 @@ function skipTo(phaseName) {
     }
 
     // Clear the interval if we skip to the end
-    if (phaseName === 'success') clearInterval(timerInterval);
+    if (phaseName === 'success') {
+        clearInterval(timerInterval);
+        // Calculate whatever phase we were in before skipping
+        calculatePhaseScore(state); 
+    }
 
     // 4. Change the phase
     changePhase(phaseName);

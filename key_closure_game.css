@@ -94,9 +94,9 @@ body {
     position: absolute;
     width: 65px;
     height: 65px;
-    background: white;
+    background: rgb(202, 202, 69);
     border-radius: 50%;
-    box-shadow: 0 0 20px white;
+    box-shadow: 0 0 20px rgb(211, 57, 57);
     animation: fadeOut 5s forwards;
 }
 
@@ -106,11 +106,28 @@ body {
 }
 
 /* Puzzle Grid */
+#puzzle-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* Horizontal Center */
+    justify-content: center; /* Vertical Center */
+    width: 100%;
+    height: 100%;
+}
+.ui-label {
+    margin-bottom: 30px;
+    text-align: center;
+    width: 100%;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+}
+
 .target-grid {
     display: grid;
     grid-template-columns: repeat(2, 90px);
     grid-template-rows: repeat(3, 90px);
-    gap: 10px;
+    gap: 15px;
+    margin: 0 auto; /* Extra insurance for centering */
 }
 
 .target-slot {
@@ -202,7 +219,7 @@ body {
     height: 100%;
     object-fit: cover;
     opacity: 0; /* Hidden by default */
-    transition: opacity 0.8s ease-in-out; /* Smooth cross-fade */
+    transition: opacity 0.3s ease-in-out;
 }
 
 .active-vid {
@@ -245,4 +262,67 @@ body {
 @keyframes fadeInScale {
     from { opacity: 0; transform: scale(0.8); }
     to { opacity: 1; transform: scale(1); }
+}
+
+/* Timer */
+/* Hide the timer by default */
+#timer {
+    display: none; 
+}
+
+/* Only show the timer when these specific phases are active */
+#phase-push.active ~ #timer,
+#phase-memory.active ~ #timer,
+#phase-puzzle.active ~ #timer,
+#phase-lock.active ~ #timer {
+    display: block;
+}
+
+/* Update the score summary layout */
+#score-summary {
+    margin: 20px 0;
+    width: 100%;             /* Allow it to take full width to center its own content */
+    display: flex;
+    flex-direction: column;
+    align-items: center;     /* Centers the list of scores */
+}
+
+/* This targets the individual lines (Push: 3s... +400) */
+#score-summary p {
+    font-size: 1.1rem;
+    margin: 8px 0;
+    width: fit-content;      /* Keeps the border-bottom tight to the text */
+    min-width: 250px;        /* Keeps the list looking uniform */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: space-between; /* Puts phase name on left, points on right */
+}
+
+@keyframes pulseGlow {
+    0% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+    50% { text-shadow: 0 0 30px rgba(255, 215, 0, 0.9); }
+    100% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+}
+
+#lang-switcher {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 2000;
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: 0.3s;
+    backdrop-filter: blur(5px);
+}
+
+#lang-switcher:hover {
+    background: var(--gold);
+    color: black;
+    border-color: var(--gold);
 }
