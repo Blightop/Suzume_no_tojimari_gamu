@@ -1,5 +1,5 @@
 :root {
-    --gold: #ffd700;
+    --gold: #ffffff;
     --door-blue: #1a2a6c;
     --bg-dark: #050509;
 }
@@ -23,6 +23,30 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.logo-container {
+    width: 80%; /* Limits the width on larger screens */
+    max-width: 600px; /* Prevents it from becoming ridiculously huge on a monitor */
+    margin: 0 auto; /* Horizontally centers the container */
+    margin-bottom: 20px; /* Pushes the 'Tap to begin' text down slightly */
+    animation: fadeScaleIn 1.5s ease-out; /* Add a smooth cinematic fade-in */
+    filter: invert(1);
+}
+
+/* The actual image settings */
+.main-logo {
+    width: 100%; /* The image fills its container (which is 80% of the screen) */
+    height: auto; /* Maintains the logo's correct proportions (no stretching!) */
+    
+    display: block; /* Removes any weird inline spacing issues */
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.7)); /* Recreates the 'gold glow' effect on the PNG */
+}
+
+/* Optional: Cinematic fade-in for the logo */
+@keyframes fadeScaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 /* UI Elements */
@@ -123,10 +147,10 @@ body {
 #final-lock-btn {
     width: 120px;
     height: 120px;
-    border: 8px solid gold;
+    border: 8px solid rgb(0, 94, 255);
     border-radius: 50%;
     background: radial-gradient(circle, #fff, #ffd700, #000);
-    box-shadow: 0 0 30px gold;
+    box-shadow: 0 0 30px rgb(0, 102, 255);
 }
 
 /* DEBUG */
@@ -157,4 +181,68 @@ body {
 #debug-panel button:active {
     background: #00ff00;
     color: black;
+}
+
+/* VIDEO BACKGROUND */
+#video-bg-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; /* Puts it behind the game */
+    background: black; /* Fallback color */
+}
+
+.bg-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.8s ease-in-out; /* Smooth cross-fade */
+}
+
+.active-vid {
+    opacity: 1; /* Only the active one is visible */
+    z-index: -1;
+}
+
+#video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* This is the "dim" effect (0.5 = 50% black) */
+}
+
+/* Return button? */
+#phase-success h1 {
+    animation: fadeInScale 2s ease-out;
+}
+
+.retry-btn {
+    margin-top: 30px;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 10px 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s;
+    z-index: 100;
+}
+
+.retry-btn:hover {
+    background: var(--gold);
+    color: black;
+    box-shadow: 0 0 20px var(--gold);
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
 }

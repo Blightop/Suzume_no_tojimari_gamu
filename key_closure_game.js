@@ -5,13 +5,24 @@ let memoryValue = 0;
 let piecesPlacedCount = 0;
 let timerInterval;
 
+// Background vid
+const videoSources = {
+    MENU: 'assets/menu-bg.mp4',
+    PUSH: 'assets/worm-appearing.mp4',
+    MEMORY: 'assets/starry-sky.mp4',
+    PUZZLE: 'assets/door-close-up.mp4',
+    LOCK: 'assets/final-glow.mp4',
+    SUCCESS: 'assets/victory-landscape.mp4'
+};
+
 // Selectors
 const screens = {
     menu: document.getElementById('phase-menu'),
     push: document.getElementById('phase-push'),
     memory: document.getElementById('phase-memory'),
     puzzle: document.getElementById('phase-puzzle'),
-    lock: document.getElementById('phase-lock')
+    lock: document.getElementById('phase-lock'),
+    success: document.getElementById('phase-success')
 };
 
 // Global Drag variables
@@ -23,6 +34,33 @@ function changePhase(newPhase) {
     Object.values(screens).forEach(s => s.classList.remove('active'));
     screens[newPhase].classList.add('active');
     state = newPhase.toUpperCase();
+
+    // Background
+    // --- New Smooth Video Swapping Logic ---
+    const allVideos = document.querySelectorAll('.bg-video');
+    const targetVid = document.getElementById(`vid-${newPhase}`);
+
+    if (targetVid) {
+        // Remove active class from all
+        allVideos.forEach(v => {
+            v.classList.remove('active-vid');
+        });
+
+        // Set the new one to active
+        targetVid.classList.add('active-vid');
+        
+        // Force the video to start from the beginning and PLAY
+        targetVid.currentTime = 0; 
+        const playPromise = targetVid.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                // If it fails, we try again on the next tap
+                console.log("Video play failed, waiting for interaction.");
+            });
+        }
+    }
+
     if(state === 'MEMORY') startMemorySpawner();
     if(state === 'PUZZLE') initPuzzle();
 }
@@ -171,14 +209,36 @@ function initPuzzle() {
 
 // Events
 window.addEventListener('pointerdown', () => {
-    if (state === 'MENU') { changePhase('push'); startTimer(); }
-    else if (state === 'PUSH') handlePush();
+    if (state === 'MENU') {
+        // --- ADD THIS "WARM-UP" LOOP ---
+        const allVids = document.querySelectorAll('.bg-video');
+        allVids.forEach(vid => {
+            // Play and immediately pause to "unlock" them for the browser
+            let playPromise = vid.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    if (vid.id !== 'vid-push') vid.pause();
+                }).catch(error => {
+                    console.log("Autoplay prevented:", error);
+                });
+            }
+        });
+        // -------------------------------
+
+        changePhase('push');
+        startTimer();
+    } else if (state === 'PUSH') {
+        handlePush();
+    }
 });
 
 document.getElementById('final-lock-btn').onclick = () => {
     clearInterval(timerInterval);
-    alert("The Door is Sealed!");
-    location.reload();
+    document.getElementById('final-lock-btn').onclick = () => {
+        clearInterval(timerInterval);
+        // Instead of an alert, we just change the phase
+        changePhase('success');
+    };
 };
 
 // DEBUG
@@ -200,6 +260,9 @@ function skipTo(phaseName) {
         pieces.forEach(p => p.remove());
         piecesPlacedCount = 0;
     }
+
+    // Clear the interval if we skip to the end
+    if (phaseName === 'success') clearInterval(timerInterval);
 
     // 4. Change the phase
     changePhase(phaseName);

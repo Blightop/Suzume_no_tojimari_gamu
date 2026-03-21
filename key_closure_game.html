@@ -18,11 +18,37 @@
         <button onclick="skipTo('lock')">Skip to Lock</button>
     </div>
 
+    <!-- BACKGROUND VIDEO -->
+    <div id="video-bg-container">
+        <video id="vid-menu" class="bg-video active-vid" autoplay muted loop playsinline poster="assets/menu-poster.jpg">
+            <source src="assets/menu-bg.mp4" type="video/mp4">
+        </video>
+        <video id="vid-push" class="bg-video" muted loop playsinline>
+            <source src="assets/worm-appearing.mp4" type="video/mp4">
+        </video>
+        <video id="vid-memory" class="bg-video" muted loop playsinline>
+            <source src="assets/starry-sky.mp4" type="video/mp4">
+        </video>
+        <video id="vid-puzzle" class="bg-video" muted loop playsinline>
+            <source src="assets/door-close-up.mp4" type="video/mp4">
+        </video>
+        <video id="vid-lock" class="bg-video" muted loop playsinline>
+            <source src="assets/final-glow.mp4" type="video/mp4">
+        </video>
+        <video id="vid-success" class="bg-video" muted loop playsinline>
+            <source src="assets/victory-landscape.mp4" type="video/mp4">
+        </video>
+    
+        <div id="video-overlay"></div>
+    </div>
+
     <!-- TIMER -->
     <div id="timer">Time: 25</div>
 
     <section id="phase-menu" class="phase active">
-        <h1 class="glow-text">SUZUME: THE CLOSER</h1>
+        <div class="logo-container">
+            <img src="assets/Suzume_no_Tojimari_logo.png" alt="Suzume Logo" class="main-logo">
+        </div>
         <p>Tap anywhere to begin the ritual</p>
     </section>
 
@@ -47,6 +73,12 @@
     <section id="phase-lock" class="phase">
         <h1 class="glow-text">TAP THE LOCK</h1>
         <div id="final-lock-btn"></div>
+    </section>
+
+    <section id="phase-success" class="phase">
+        <h1 class="glow-text" style="font-size: 3rem;">THE DOOR IS SEALED</h1>
+        <p style="font-style: italic; color: #ccc;">"I call upon you..."</p>
+        <button onclick="location.reload()" class="retry-btn">RETURN TO MENU</button>
     </section>
 </div>
 
