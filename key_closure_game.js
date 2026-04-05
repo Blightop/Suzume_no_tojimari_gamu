@@ -312,8 +312,8 @@ function updateVictoryScreen() {
 }
 
 // Language
-let currentLang = 'JP'; // Default
-const languages = ['JP', 'EN', 'ZH'];
+let currentLang = 'ZH'; // Default
+const languages = ['ZH', 'JP', 'EN'];
 
 const translations = {
     EN: {
@@ -417,3 +417,7 @@ function skipTo(phaseName) {
     
     console.log(`Debug: Skipped to ${phaseName}`);
 }
+
+// change language on load
+document.getElementById('lang-switcher').innerText = currentLang;
+updatePageLanguage();

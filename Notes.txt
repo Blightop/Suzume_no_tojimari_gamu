@@ -1,0 +1,18 @@
+project:
+Entirely vibe code
+
+with tweakings to my liking
+
+
+bad stuff:
+
+Trash organizatioon
+    like functions repeated
+    and have to do it myself
+    like:
+        immunity functiona appeared two times
+
+check if extra things appeared
+    extra variables appeared
+    like adjusting speed of an object when talking about moving the object lower
+    no idea why, just ai hallullation shit

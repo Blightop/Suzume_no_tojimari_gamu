@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Daijin Chase Prototype</title>
+    <link rel="stylesheet" href="chase.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="ground"></div>
+        <div id="player" class="orange-box"></div>
+        <div id="target" class="white-box"></div>
+        
+        <div id="timer">Time: 0.0s</div>
+        <div id="menu-overlay" class="overlay">
+            <h1>DAIJIN CHASE</h1>
+            <p>Tap Screen to Jump | Use Button to Slide</p>
+            <button onclick="startGame()">START RITUAL</button>
+        </div>
+
+        <div id="victory-overlay" class="overlay hidden">
+            <h1>CAUGHT!</h1>
+            <p id="final-time"></p>
+            <button onclick="location.reload()">RETRY</button>
+        </div>
+
+        <button id="slide-btn">SLIDE</button>
+        
+        <div id="qte-container" class="hidden">
+            <div id="qte-target"></div>
+            <div id="qte-ring"></div>
+        </div>
+    </div>
+    <script src="chase.js"></script>
+</body>
+</html>
